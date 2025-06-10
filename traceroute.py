@@ -13,7 +13,6 @@ def resolve_hostname(hostname):
 
 def run_traceroute(target):
     try:
-        # Для Linux используем 'traceroute', для Windows 'tracert'
         command = ['tracert', '-d', '-w', '1000', '-h', '30', target]
         process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE,encoding="cp866", text=True)
         
@@ -43,12 +42,11 @@ def parse_traceroute(output):
         if not line.strip() or '*' in line:
             continue
         
-        # Ищем IP-адреса в строке
+    
         ips = ip_pattern.findall(line)
         if ips:
-            # Берем последний IP в строке (обычно это адрес маршрутизатора)
             hop_ip = ips[-1]
-            if hop_ip not in hops:  # Исключаем дубликаты
+            if hop_ip not in hops:
                 hops.append(hop_ip)
     
     return hops
@@ -57,7 +55,7 @@ def get_as_number(ip):
     if is_private_ip(ip):
         return "Private"
     try:
-        # Используем API RIPE Stat для получения информации об AS
+       
         url = f"https://stat.ripe.net/data/network-info/data.json?resource={ip}"
         response = requests.get(url, timeout=10)
         data = response.json()
@@ -90,22 +88,17 @@ def main():
     target = input().strip()
     
     try:
-        # Проверяем, является ли ввод IP-адресом
         try:
             socket.inet_aton(target)
             target_ip = target
         except socket.error:
-            # Если нет, пытаемся разрешить доменное имя
             target_ip = resolve_hostname(target)
         
         print(f"\nНачинаем трассировку до {target} ({target_ip})...\n")
         
-        # Выполняем трассировку
         traceroute_output = run_traceroute(target_ip)
         print("Результат трассировки:")
         print(traceroute_output)
-        
-        # Парсим результаты трассировки
         hops = parse_traceroute(traceroute_output)
         
         if not hops:
@@ -114,7 +107,6 @@ def main():
         
         print("\nОпределение автономных систем для каждого узла...")
         
-        # Используем ThreadPoolExecutor для параллельного запроса AS номеров
         as_numbers = {}
         with ThreadPoolExecutor(max_workers=5) as executor:
             future_to_ip = {executor.submit(get_as_number, ip): ip for ip in hops}
@@ -124,10 +116,8 @@ def main():
                     as_numbers[ip] = future.result()
                 except Exception as e:
                     as_numbers[ip] = f"Error: {str(e)}"
-                # Добавляем небольшую задержку между запросами
                 time.sleep(0.5)
         
-        # Выводим результаты в виде таблиц  ы
         print("\nРезультаты:")
         print("{:<5} {:<15} {:<15}".format("No", "IP", "AS"))
         print("-" * 40)
