@@ -2,7 +2,7 @@ import requests
 import re
 
 # Настройки
-ACCESS_TOKEN = '17753c0d17753c0d17753c0df71446da5d1177517753c0d7f3daf2a2f4f9ce677b121e2' 
+' 
 VERSION = '5.131' 
 
 def extract_user_id(profile_link):
