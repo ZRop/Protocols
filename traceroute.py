@@ -46,8 +46,8 @@ def parse_traceroute(output):
         ips = ip_pattern.findall(line)
         if ips:
             hop_ip = ips[-1]
-            if hop_ip not in hops:
-                hops.append(hop_ip)
+            
+            hops.append(hop_ip)
     
     return hops
 
@@ -117,11 +117,13 @@ def main():
                 except Exception as e:
                     as_numbers[ip] = f"Error: {str(e)}"
                 time.sleep(0.5)
-        
+
+
+        #print("Вывод парсинга галимый",parse_traceroute(traceroute_output))
         print("\nРезультаты:")
         print("{:<5} {:<15} {:<15}".format("No", "IP", "AS"))
         print("-" * 40)
-        for i, ip in enumerate(hops, 1):
+        for i, ip in enumerate(hops[1:], 1):
             print("{:<5} {:<15} {:<15}".format(i, ip, as_numbers.get(ip, "Unknown")))
     
     except Exception as e:
